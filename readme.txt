@@ -5,7 +5,7 @@ Requires at least: 3.0
 Tested up to: 3.0.4
 Stable tag: trunk
 
-Use jump2.me para criar links curtos para seus posts e comartilhe-os através do Twitter.
+Use o Jump2.me para criar links curtos para seus posts e comp	artilhe-os através do Twitter.
 
 == Description ==
 

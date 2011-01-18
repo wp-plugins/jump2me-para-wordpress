@@ -26,12 +26,14 @@ function wp_jump2me_newpost( $post ) {
 	$keyword = get_post_meta( $post_id, 'jump2me_keyword', true );
 	$keyword = apply_filters( 'jump2me_custom_keyword', $keyword, $post_id );
 	
-	$shorturl = wp_jump2me_get_new_short_url($url, $post_id, $keyword);
+	// Verifica se deve compartilhar no Twitter
+	$share = wp_jump2me_tweet_on( get_post_type($post_id) );
+	$shorturl = wp_jump2me_get_new_short_url($url, $post_id, $keyword, $share);
 
 }
 
 // Função de integração WP <-> JUMP2.ME. Retorna a URL curta de um post
-function wp_jump2me_get_new_short_url( $url, $post_id = 0, $keyword = '') {
+function wp_jump2me_get_new_short_url( $url, $post_id = 0, $keyword = '', $share = false) {
 	global $wp_jump2me;
 	
 	do_action( 'jump2me_get_new_short_url', $url, $post_id, $keyword);
@@ -40,7 +42,7 @@ function wp_jump2me_get_new_short_url( $url, $post_id = 0, $keyword = '') {
 	update_post_meta( $post_id, 'jump2me_fetching', 1 );
 	
 	// Faz a chamada a API do Jump2.me
-	$shorturl = wp_jump2me_api_call( $url, $post_id, $keyword);
+	$shorturl = wp_jump2me_api_call( $url, $post_id, $keyword, $share);
 	
 	update_post_meta( $post_id, 'jump2me_shorturl', $shorturl);
 	update_post_meta( $post_id, 'jump2me_fetching', 0 );
@@ -49,11 +51,9 @@ function wp_jump2me_get_new_short_url( $url, $post_id = 0, $keyword = '') {
 }
 
 // Executa a API do Jump2.me. Returna um link curto.
-function wp_jump2me_api_call($url, $post_id = 0, $keyword = '') {
+function wp_jump2me_api_call($url, $post_id = 0, $keyword = '', $share = false) {
 	global $wp_jump2me;
 	
-	// Verifica se deve compartilhar no Twitter
-	$share = wp_jump2me_tweet_on( get_post_type($post_id) );
 	$share_params = '';
 	if ($share) {
 		$share_params = '/share/1/tweet/'.urlencode(wp_jump2me_maketweet($post_id ));	

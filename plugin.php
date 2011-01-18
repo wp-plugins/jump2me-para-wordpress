@@ -41,7 +41,7 @@ function wp_jump2me_geturl( $id ) {
 	// Se não houver um link curto, é necessário criá-lo
 	if ( empty($shorturl) && !is_preview() && $fetching != 1 ) {
 		$keyword = apply_filters( 'jump2me_custom_keyword', '', $id );
-		$shorturl = wp_jump2me_get_new_short_url( get_permalink( $id ), $id, $keyword );
+		$shorturl = wp_jump2me_get_new_short_url( get_permalink( $id ), $id, $keyword, false );
 	}
 
 
