@@ -5,12 +5,13 @@ Plugin URI: http://jump2.me/blog/plugins/wordpress/
 Description: Crie links curtos para os seus posts com o <a href="http://jump2.me" title="Jump2.me">jump2.me</a> e compartilhe-os através do Twitter.
 Author: Luthiano Vasconcelos
 Author URI: http://luthiano.com
-Version: 1.1
+Version: 1.2
 */
 
 /* Release History :
  * 1.0: Versão inicial
- * 1.1: Evita o compartilhamento de posts antigos.
+ * 1.1: Evita o compartilhamento de posts antigos no Twitter.
+ * 1.2: Metabox ativada. Bug na publicação de posts sem título.
  */
 
 global $wp_jump2me;
@@ -66,7 +67,7 @@ if (is_admin()) {
 	// Adiciona a menu de configurações e inicializa as opções e a interface de postagem
 	add_action('admin_menu', 'wp_jump2me_add_page');
 	add_action('admin_init', 'wp_jump2me_admin_init');
-	//add_action('admin_init', 'wp_jump2me_addbox', 10);
+	add_action('admin_init', 'wp_jump2me_addbox', 10);
 	// Ícone personalizado e link de ativação do plugin
 	add_filter( 'plugin_action_links_'.plugin_basename(__FILE__), 'wp_jump2me_plugin_actions', -10);
 	add_filter( 'adminmenu_icon_jump2me', 'wp_jump2me_customicon' );
@@ -75,11 +76,18 @@ if (is_admin()) {
 }
 
 // Trata as ações de publicação
-add_action('new_to_publish', 'wp_jump2me_newpost', 10, 1);
-add_action('draft_to_publish', 'wp_jump2me_newpost', 10, 1);
-add_action('pending_to_publish', 'wp_jump2me_newpost', 10, 1);
-add_action('future_to_publish', 'wp_jump2me_newpost', 10, 1);
+$prioridade = 15;
+add_action('publish_page', 'wp_jump2me_newpost', $prioridade, 1);
+add_action('publish_phone', 'wp_jump2me_newpost', $prioridade, 1);
+add_action('xmlrpc_publish_post', 'wp_jump2me_newpost', $prioridade, 1);
+add_action('publish_post', 'wp_jump2me_newpost', $prioridade, 1);
+add_action('publish_to_publish', 'wp_jump2me_newpost', $prioridade, 1);
+add_action('new_to_publish', 'wp_jump2me_newpost', $prioridade, 1);
+add_action('draft_to_publish', 'wp_jump2me_newpost', $prioridade, 1);
+add_action('pending_to_publish', 'wp_jump2me_newpost', $prioridade, 1);
+add_action('private_to_publish', 'wp_jump2me_newpost', $prioridade, 1);
+add_action('future_to_publish', 'wp_jump2me_newpost', $prioridade, 1);
 
 // Substitui a função interna de criação de links curtos
-add_filter( 'pre_get_shortlink', 'wp_jump2me_get_shortlink', 10, 3 );
+add_filter( 'pre_get_shortlink', 'wp_jump2me_get_shortlink', $prioridade, 3 );
 

@@ -5,9 +5,12 @@ function wp_jump2me_newpost( $post ) {
 	global $wp_jump2me;
 	
 	do_action( 'jump2me_newpost' );
-	
+
 	$post_id = $post->ID;
-	
+	if (empty($post_id)) {
+		$post_id = $post;
+	}
+
 	// Já possui um link curto?
 	$shorturl = get_post_meta( $post_id, 'jump2me_shorturl', true );
 	if (!empty($shorturl)) {
@@ -15,11 +18,12 @@ function wp_jump2me_newpost( $post ) {
 	}
 	
 	// Gera um link curto para esse tipo de objeto?
-	if ( !wp_jump2me_generate_on( $post->post_type ) ) {
+	$type = get_post_type($post_id);
+	if ( !wp_jump2me_generate_on($type)) {
 		return;
 	}
 	
-	$url = get_permalink ( $post_id );
+	$url = get_permalink ($post_id);
 	$url = apply_filters( 'jump2me_custom_url', $url, $post_id );
 	
 	// Verifica a existencia de uma keyword
@@ -27,7 +31,7 @@ function wp_jump2me_newpost( $post ) {
 	$keyword = apply_filters( 'jump2me_custom_keyword', $keyword, $post_id );
 	
 	// Verifica se deve compartilhar no Twitter
-	$share = wp_jump2me_tweet_on( get_post_type($post_id) );
+	$share = wp_jump2me_tweet_on($type);
 	$shorturl = wp_jump2me_get_new_short_url($url, $post_id, $keyword, $share);
 
 }
@@ -36,7 +40,7 @@ function wp_jump2me_newpost( $post ) {
 function wp_jump2me_get_new_short_url( $url, $post_id = 0, $keyword = '', $share = false) {
 	global $wp_jump2me;
 	
-	do_action( 'jump2me_get_new_short_url', $url, $post_id, $keyword);
+	do_action( 'jump2me_get_new_short_url', $url, $post_id, $keyword, $share);
 	
 	// Marca que o flag 'jump2me_fetching' para inidicar que está gerando o link curto
 	update_post_meta( $post_id, 'jump2me_fetching', 1 );
@@ -205,6 +209,7 @@ function wp_jump2me_plugin_actions($links) {
 	$links[] = "<a href='options-general.php?page=jump2me'><b>Configurações</b></a>";
 	return $links;
 }
+
 
 // Substitui a função do Wordpress wp_get_shortlink.
 function wp_jump2me_get_shortlink( $false, $id, $context = '' ) {

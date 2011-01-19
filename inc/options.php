@@ -276,15 +276,13 @@ function wp_jump2me_do_page() {
 }
 
 // Adiciona metabox a página de edição
-/*
 function wp_jump2me_addbox() {
 	$post_type = isset( $_GET['post_type'] ) ? $_GET['post_type'] : 'post' ;
 	add_meta_box( 'jump2mediv', 'Jump2.me', 'wp_jump2me_drawbox', $post_type, 'side', 'default' );
-} */
+}
 
 
 // Produz a metabox
-/*
 function wp_jump2me_drawbox( $post ) {
 	$type = $post->post_type;
 	$status = $post->post_status;
@@ -293,7 +291,7 @@ function wp_jump2me_drawbox( $post ) {
 	
 	// Se não publicado, só mostra uma mensagem.
 	if ( $status != 'publish' ) {
-		echo '<p>Dependendo da <a href="options-general.php?page=jump2me">configuração</a>, um link curto será gerado e/ou um tweet será publicado.</p>';
+		echo '<p><b>Dica:</b> Se você adicionar o campo personalizado <i>jump2me_keyword</i> antes de publicar o post, seu conteúdo será usado como palavra-chave para criação do link curto. É um forma bacana de tornar o texto do link mais amigável.</p>';
 		return;
 	}
 	
@@ -308,6 +306,9 @@ function wp_jump2me_drawbox( $post ) {
 	echo '<div id="jump2me-shorturl">';
 	echo "<p>Esse é o link curto para esse(a) $type: <strong><a href='$shorturl'>$shorturl</a></strong></p>";
 	echo '</div>';
+	echo '<p><strong>Estatísticas</strong></p>';
+	echo '<div id="jump2me-stats">';
+	echo "<p>Acesse as estatísticas de acesso aqui: <strong><a href='$shorturl+'>$shorturl+</a></strong></p>";
+	echo '</div>';
 }
-*/
 ?>
