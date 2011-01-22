@@ -5,13 +5,14 @@ Plugin URI: http://jump2.me/blog/plugins/wordpress/
 Description: Crie links curtos para os seus posts com o <a href="http://jump2.me" title="Jump2.me">jump2.me</a> e compartilhe-os através do Twitter.
 Author: Luthiano Vasconcelos
 Author URI: http://luthiano.com
-Version: 1.2
+Version: 1.3
 */
 
 /* Release History :
  * 1.0: Versão inicial
  * 1.1: Evita o compartilhamento de posts antigos no Twitter.
  * 1.2: Metabox ativada. Bug na publicação de posts sem título.
+ * 1.3: Botão tweet.
  */
 
 global $wp_jump2me;
@@ -90,4 +91,5 @@ add_action('future_to_publish', 'wp_jump2me_newpost', $prioridade, 1);
 
 // Substitui a função interna de criação de links curtos
 add_filter( 'pre_get_shortlink', 'wp_jump2me_get_shortlink', $prioridade, 3 );
-
+// Inclue o botão tweet no conteúdo do blog
+add_filter('the_content', 'wp_jump2me_twitter_update', 9);

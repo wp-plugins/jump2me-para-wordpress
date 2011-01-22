@@ -22,6 +22,8 @@ Esse plugin integra o seu blog ao Jump2.me e ao Twitter: quando você submete um
 = 1.2 =
 * Correção de bug apontado por @sampsonsm
 * Ativação da metabox
+= 1.3 =
+* Inclusão do botão Tweet
 
 == Installation ==
 

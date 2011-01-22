@@ -246,3 +246,128 @@ function wp_jump2me_pluginurl() {
 	return plugin_dir_url( dirname(__FILE__) );
 }
 
+
+// *************** Botão Tweet *********************/
+
+function wp_jump2me_twitter_build_options()
+{
+	global $post;
+	global $wp_jump2me;
+	
+	if (get_post_status($post->ID) == 'publish') {
+        //$url = get_permalink($post->ID);
+		$url = wp_jump2me_geturl($post->ID);
+    }
+    $button = '?url=' . urlencode($url);
+
+    // tipo do botão
+    if ($wp_jump2me['twitter_version']) {
+        $button .= '&count=' . urlencode($wp_jump2me['twitter_version']);
+    }
+
+	if ($wp_jump2me['twitter_via']) {
+		$button .= '&via=' . urlencode($wp_jump2me['twitter_via']);
+	}
+
+	if ($wp_jump2me['twitter_lang']) {
+		$button .= '&lang=' . urlencode($wp_jump2me['twitter_lang']);
+	}
+
+	// O post tem um texto padrão configurado?
+	if (($text = get_post_meta($post->ID, 'twitter_text', true)) != false) {
+		$button .= '&text=' . urlencode($text);
+	} else {
+		// Senão usa o título do post
+		$button .= '&text=' . urlencode(get_the_title($post->ID));
+	}
+
+    return $button;
+}
+
+function wp_jump2me_twitter_generate_button()
+{
+	global $wp_jump2me;
+	
+	$button = '<div class="twitter_button" style="' . $wp_jump2me['twitter_style'] . '">';
+    $button .= '<iframe src="http://jump2.me/services/button.php' . wp_jump2me_twitter_build_options() . '" ';
+
+	$sizes = array(
+		'pt_BR' => array(
+			'vertical' => array(62, 55),
+			'horizontal' => array(20, 110),
+			'none' => array(20, 55)
+		),
+		'en' => array(
+			'vertical' => array(62, 55),
+			'horizontal' => array(20, 110),
+			'none' => array(20, 55)
+		),
+		'fr' => array(
+			'vertical' => array(62, 65),
+			'horizontal' => array(20, 117),
+			'none' => array(20, 65)
+		),
+		'de' => array(
+			'vertical' => array(62, 67),
+			'horizontal' => array(20, 119),
+			'none' => array(20, 67)
+		),
+		'es' => array(
+			'vertical' => array(62, 64),
+			'horizontal' => array(20, 116),
+			'none' => array(20, 64)
+		),
+		'ja' => array(
+			'vertical' => array(62, 80),
+			'horizontal' => array(20, 130),
+			'none' => array(20, 80)
+		)
+	);
+
+	$button .= 'height="' . $sizes[$wp_jump2me['twitter_lang']][$wp_jump2me['twitter_version']][0] . '" width="' . $sizes[$wp_jump2me['twitter_lang']][$wp_jump2me['twitter_version']][1] . '"';
+	$button .= ' frameborder="0" scrolling="no" allowtransparency="true"></iframe></div>';
+    return $button;
+}
+
+function wp_jump2me_twitter_update($content)
+{
+	global $post;
+	global $wp_jump2me;
+
+	if ($wp_jump2me['twitter_enable'] == 'yes') {
+		$button = wp_jump2me_twitter_generate_button();
+
+	    // Se inclusão manual
+	    if ($wp_jump2me['twitter_where'] == 'manual') {
+	        return $content;
+		}
+	    if (!array_key_exists('twitter_display_page', $wp_jump2me) && is_page()) {
+	        return $content;
+	    }
+		if (!array_key_exists('twitter_display_front', $wp_jump2me) && is_home()) {
+	        return $content;
+	    }
+		if (is_feed()) {
+			return $content;
+		}
+
+		// Shortcode [twitter]
+		if ($wp_jump2me['twitter_where'] == 'shortcode') {
+			return str_replace('[twitter]', $button, $content);
+		} else {
+			if (get_post_meta($post->ID, 'twitter') == null) {
+				if ($wp_jump2me['twitter_where'] == 'beforeandafter') {
+					return $button . $content . $button;
+				} else if ($wp_jump2me['twitter_where'] == 'before') {
+					return $button . $content;
+				} else {
+					return $content . $button;
+				}
+			} else {
+				return $content;
+			}
+		}
+	} else {
+		return $content;
+	}
+}

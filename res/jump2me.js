@@ -2,7 +2,7 @@
 
 jQuery(document).ready(function($){
 
-	$('#div_h3_twitter, #div_h3_wordpress').css('display','none');
+	$('#div_h3_twitter, #div_h3_wordpress, #div_h3_button').css('display','none');
 	
 	$('#advanced_template').css('display','none');
 	$('#toggle_advanced_template')
@@ -56,9 +56,13 @@ jQuery(document).ready(function($){
 		return;
 	});
 	
-	// Twitter sample copy
+	// Copia exemplos
 	$('.tw_msg_sample').click(function(){
 		$('#tw_msg').val($(this).html());
+	});
+	
+	$('.tw_style_sample').click(function(){
+		$('#twitter_style').val($(this).html());
 	});
 	
 	// Toggle display between password and text fields

@@ -67,12 +67,13 @@ function wp_jump2me_settings_are_ok( $check = 'overall' ) {
 
 	$check_jump2me   = ( isset( $wp_jump2me['api_key'] ) && !empty( $wp_jump2me['api_key'] ) ? true : false );
 	$check_wordpress = ( isset( $wp_jump2me['twitter_message'] ) && !empty( $wp_jump2me['twitter_message'] ) ? true : false );
+	$check_button = true;
 	
 	if( $check == 'overall' ) {
-		$overall = $check_jump2me && $check_wordpress ;
+		$overall = $check_jump2me && $check_wordpress && $check_button ;
 		return $overall;
 	} else {
-		return array( 'check_jump2me' => $check_jump2me, 'check_wordpress' => $check_wordpress );
+		return array( 'check_jump2me' => $check_jump2me, 'check_wordpress' => $check_wordpress, 'check_button' => $check_button );
 	}
 }
 
@@ -147,6 +148,7 @@ function wp_jump2me_do_page() {
 	jQuery(document).ready(function(){
 		toggle_ok_notok('#h3_check_jump2me', '<?php echo $check_jump2me ? 'ok' : 'notok' ; ?>' );
 		toggle_ok_notok('#h3_check_wordpress', '<?php echo $check_wordpress ? 'ok' : 'notok' ; ?>' );
+		toggle_ok_notok('#h3_check_button', '<?php echo $check_button ? 'ok' : 'notok' ; ?>' );
 		<?php echo $script_expand; ?>
 	});
 	</script>	
@@ -179,7 +181,7 @@ function wp_jump2me_do_page() {
 	<td>
 
 	<input type="text" class="y_longfield" id="y_path" name="jump2me[api_key]" value="<?php echo $jump2me['api_key']; ?>"/></br>
-	Para obter a chave de acesso, acesse o <a href="http://jump2.me">Jump2.me</a>, efetue o <a href="http://jump2.me/jump2/login">login</a> e copie a chave no <a href="http://jump2.me/jump2/profile">perfil do usuário</a>.
+	<span class="description">Para obter a chave de acesso, acesse o <a href="http://jump2.me">Jump2.me</a>, efetue o <a href="http://jump2.me/jump2/login">login</a> e copie a chave no <a href="http://jump2.me/jump2/profile">perfil do usuário</a>.</span>
 	
 	
 	</td>
@@ -224,6 +226,7 @@ function wp_jump2me_do_page() {
 	<tr valign="top">
 	<th scope="row">Formato da mensagem<span class="mandatory">*</span></th>
 	<td><input id="tw_msg" name="jump2me[twitter_message]" type="text" size="50" value="<?php echo $jump2me['twitter_message']; ?>"/><br/>
+	<span class="description">
 	Esse é o modelo do <i>tweet</i>. O <i>plugin</i> substiuirá <tt>$T</tt> como o título do post e <tt>$U</tt> com o link curto gerado pelo <a href="http://jump2.me">Jump2.me</a>, respeitando o limite de 140 bytes do Twitter<br/>
 	Exemplos (clique para copiar)<br/>
 	<ul id="tw_msg_sample">
@@ -248,12 +251,107 @@ function wp_jump2me_do_page() {
 		</ul>
 		Lembre-se que você está limitado a 140 bytes! Se sua formatação incluir muitos símbolos, a mensagem poderá ser truncada!
 	</div>
+	</span>
 	</td>
 	</tr>
 
 	</table>
 	
 	</div> <!-- div_h3_wordpress -->
+	
+	<h3>Configurações do Botão Tweet <span class="h3_toggle expand" id="h3_button">+</span> <span id="h3_check_button" class="h3_check">*</span></h3> 
+
+	<div class="div_h3" id="div_h3_button">
+	    
+		<img style="float: right; margin-left: 10px;" src="http://s.twimg.com/a/1283397887/images/goodies/tweetv.png" />
+		<h4>Exiba o botão Tweet para que os leitores divulguem seus posts diretamente no Twitter</h4> 
+		
+		<table class="form-table">
+
+		<tr valign="top">
+		<th scope="row">Ativado</span></th>
+		<td>
+			<input type="radio" value="yes" <?php if ($jump2me['twitter_enable'] == 'yes') echo 'checked="checked"'; ?> name="jump2me[twitter_enable]" id="twitter_enable_yes" group="twitter_enable"/>
+	        <label for="twitter_enable_yes">Sim</label>
+	        <br/>
+	        <input type="radio" value="no" <?php if ($jump2me['twitter_enable'] == 'no' || !$jump2me['twitter_enable']) echo 'checked="checked"'; ?> name="jump2me[twitter_enable]" id="twitter_enable_no" group="twitter_enable" />
+	        <label for="twitter_enable_no">Não</label>
+	        <span class="description"></span>
+		</td>
+		</tr>
+		
+		<tr valign="top">
+		<th scope="row">Tipo</span></th>
+		<td>
+			<input type="radio" value="vertical" DISABLED <?php if ($jump2me['twitter_version'] == 'vertical') echo 'checked="checked"'; ?> name="jump2me[twitter_version]" id="twitter_version_twitter_vertical" group="twitter_version"/>
+            <label for="twitter_version_twitter_vertical">Contador Vertical (não disponível ainda)</label>
+            <br/>
+            <input type="radio" value="horizontal" DISABLED <?php if ($jump2me['twitter_version'] == 'horizontal') echo 'checked="checked"'; ?> name="jump2me[twitter_version]" id="twitter_version_twitter_horizontal" group="twitter_version" />
+            <label for="twitter_version_twitter_horizontal">Contador Horizontal (não disponível ainda)</label>
+			<br/>
+            <input type="radio" value="none" <?php if ($jump2me['twitter_version'] == 'none') echo 'checked="checked"'; ?> name="jump2me[twitter_version]" id="twitter_version_twitter_nocount" group="twitter_version"/>
+            <label for="twitter_version_twitter_nocount">Simples</label>
+		</td>
+		</tr>
+		
+		<tr valign="top">
+		<th scope="row">Exibição</span></th>
+		<td>
+			<input type="checkbox" value="1" <?php if ($jump2me['twitter_display_page'] == '1') echo 'checked="checked"'; ?> name="jump2me[twitter_display_page]" id="twitter_display_page" group="twitter_display"/>
+            <label for="tm_display_page">Exibir o botão nas páginas e posts</label>
+            <br/>
+            <input type="checkbox" value="1" <?php if ($jump2me['twitter_display_front'] == '1') echo 'checked="checked"'; ?> name="jump2me[twitter_display_front]" id="twitter_display_front" group="twitter_display"/>
+            <label for="tm_display_front">Exibir o botão na página inicial</label>
+		</td>
+		</tr>
+		
+		<tr valign="top">
+		<th scope="row">Posicionamento</span></th>
+		<td>
+			<select name="jump2me[twitter_where]">
+        		<option <?php if ($jump2me['twitter_where'] == 'before') echo 'selected="selected"'; ?> value="before">Início do post</option>
+        		<option <?php if ($jump2me['twitter_where'] == 'after') echo 'selected="selected"'; ?> value="after">Fim do post</option>
+        		<option <?php if ($jump2me['twitter_where'] == 'beforeandafter') echo 'selected="selected"'; ?> value="beforeandafter">Início e fim do post</option>
+        		<option <?php if ($jump2me['twitter_where'] == 'shortcode') echo 'selected="selected"'; ?> value="shortcode">Código embutido no conteúdo do post: [twitter]</option>
+        		<option <?php if ($jump2me['twitter_where'] == 'manual') echo 'selected="selected"'; ?> value="manual">Manual (através de alteração no tema)</option>
+        	</select></br>
+        	<span class="description">Posição do botão na página</span>
+		</td>
+		</tr>
+		
+		<tr valign="top">
+		<th scope="row">Estilo</span></th>
+		<td>
+			<input type="text" class="y_longfield" value="<?php echo htmlspecialchars($jump2me['twitter_style']); ?>" name="jump2me[twitter_style]" id="twitter_style" /></br>
+            <span class="description">Defina o estilo do DIV que envolve o botão. Esse parâmetro é útil para ajustar o posicionamento do botão em relação ao tema do blog.</br>
+				Exemplos (clique para copiar)<br/>
+				<ul id="tw_style_sample">
+					<li><code class="tw_style_sample">float: right; margin-right: 10px;</code></li>
+					<li><code class="tw_style_sample">float: left; margin-left: 10px;</code></li>
+				</ul>
+		</td>
+		</tr>
+		
+		<tr valign="top">
+		<th scope="row">via @(usuário do Twitter)</span></th>
+		<td>
+			<input type="text" value="<?php echo htmlspecialchars($jump2me['twitter_via']); ?>" name="jump2me[twitter_via]" id="twitter_via" /></br>
+            <span class="description">Esse usuário irá ser mencionado no texto sugerido</span>
+		</td>
+		</tr>
+		
+		<tr>
+        	<th scope="row" valign="top"><label for="twitter_lang">Idioma</label></th>
+            <td>
+            	<select name="jump2me[twitter_lang]" id="twitter_lang">
+            		<option value="pt_BR" <?php if ($jump2me['twitter_lang'] == 'pt_BR') echo 'selected="selected"'; ?>>Português (Brasil)</option>
+            	</select>
+            </td>
+        </tr>
+
+		</table>
+	
+	</div> <!-- div_h3_button -->
 	
 	<?php
 	$reset = add_query_arg( array('action' => 'reset'), menu_page_url( 'jump2me', false ) );
