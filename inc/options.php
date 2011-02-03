@@ -283,11 +283,11 @@ function wp_jump2me_do_page() {
 		<tr valign="top">
 		<th scope="row">Tipo</span></th>
 		<td>
-			<input type="radio" value="vertical" DISABLED <?php if ($jump2me['twitter_version'] == 'vertical') echo 'checked="checked"'; ?> name="jump2me[twitter_version]" id="twitter_version_twitter_vertical" group="twitter_version"/>
-            <label for="twitter_version_twitter_vertical">Contador Vertical (não disponível ainda)</label>
+			<input type="radio" value="vertical" <?php if ($jump2me['twitter_version'] == 'vertical') echo 'checked="checked"'; ?> name="jump2me[twitter_version]" id="twitter_version_twitter_vertical" group="twitter_version"/>
+            <label for="twitter_version_twitter_vertical">Contador Vertical</label>
             <br/>
-            <input type="radio" value="horizontal" DISABLED <?php if ($jump2me['twitter_version'] == 'horizontal') echo 'checked="checked"'; ?> name="jump2me[twitter_version]" id="twitter_version_twitter_horizontal" group="twitter_version" />
-            <label for="twitter_version_twitter_horizontal">Contador Horizontal (não disponível ainda)</label>
+            <input type="radio" value="horizontal" <?php if ($jump2me['twitter_version'] == 'horizontal') echo 'checked="checked"'; ?> name="jump2me[twitter_version]" id="twitter_version_twitter_horizontal" group="twitter_version" />
+            <label for="twitter_version_twitter_horizontal">Contador Horizontal</label>
 			<br/>
             <input type="radio" value="none" <?php if ($jump2me['twitter_version'] == 'none') echo 'checked="checked"'; ?> name="jump2me[twitter_version]" id="twitter_version_twitter_nocount" group="twitter_version"/>
             <label for="twitter_version_twitter_nocount">Simples</label>
@@ -326,8 +326,8 @@ function wp_jump2me_do_page() {
             <span class="description">Defina o estilo do DIV que envolve o botão. Esse parâmetro é útil para ajustar o posicionamento do botão em relação ao tema do blog.</br>
 				Exemplos (clique para copiar)<br/>
 				<ul id="tw_style_sample">
-					<li><code class="tw_style_sample">float: right; margin-right: 10px;</code></li>
-					<li><code class="tw_style_sample">float: left; margin-left: 10px;</code></li>
+					<li><code class="tw_style_sample">float: right; margin-left: 10px;</code></li>
+					<li><code class="tw_style_sample">float: left; margin-right: 10px;</code></li>
 				</ul>
 		</td>
 		</tr>
