@@ -2,7 +2,7 @@
 
 jQuery(document).ready(function($){
 
-	$('#div_h3_twitter, #div_h3_wordpress, #div_h3_button').css('display','none');
+	$('#div_h3_twitter, #div_h3_wordpress, #div_h3_button, #div_h3_authentication, #div_h3_comment').css('display','none');
 	
 	$('#advanced_template').css('display','none');
 	$('#toggle_advanced_template')

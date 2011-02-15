@@ -9,9 +9,9 @@ Use o Jump2.me para criar links curtos para seus posts e compartilhe-os através
 
 == Description ==
 
-Jump2.me é um serviço gratuito para encurtamento de links (URLs) que produz úteis estatísticas de acesso.
+[Jump2.me](http://jump2/me) é um serviço gratuito para compartilhamento de links através do Twitter que produz úteis estatísticas de acesso para medir a repercussão (número de acessos e de tweets).
 
-Esse plugin integra o seu blog ao Jump2.me e ao Twitter: quando você submete um novo post ou uma nova página, seu blog irá usar a API do Jump2.me (http://jump2.me/blog/api) para gerar um link curto e compartilhá-lo através do Twitter.
+Esse plugin integra o seu blog ao Jump2.me e ao Twitter: quando você submete um novo post ou uma nova página, seu blog irá usar a [API do Jump2.me](http://jump2.me/blog/api) para gerar um link curto e compartilhá-lo através do Twitter. Esse plugin também  adiciona o botão Tweet junto ao conteúdo do blog, permitindo que os visitantes do blog publiquem seus links no Twitter e integra a sessão de comentários para permitir a identificação do visitante através das credenciais do Twitter.
 
 == Changelog ==
 
@@ -26,6 +26,8 @@ Esse plugin integra o seu blog ao Jump2.me e ao Twitter: quando você submete um
 * Inclusão do botão Tweet
 = 1.4 =
 * Dois novos tipos de botão Tweet: vertical e horizontal
+= 1.5 =
+* Autenticação dos visitantes através do Twitter
 
 == Installation ==
 
