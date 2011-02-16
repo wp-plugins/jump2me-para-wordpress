@@ -28,12 +28,14 @@ Esse plugin integra o seu blog ao Jump2.me e ao Twitter: quando você submete um
 * Dois novos tipos de botão Tweet: vertical e horizontal
 = 1.5 =
 * Autenticação dos visitantes através do Twitter
+= 1.6 =
+* Inclusão dos botões de login via Twitter
 
 == Installation ==
 
 Passo a passo:
 
-1. Copie a pasta 'jump2me-wordpress para a pasta de plugins '/wp-content/plugins/';
+1. Descompacte o aequivo Zip e copie a pasta 'jump2me-para-wordpress para a pasta de plugins '/wp-content/plugins/';
 2. Ative o plugin através do menu 'Plugins' do WordPress
 
 Veja um tutorial detalhado em: http://jump2.me/X

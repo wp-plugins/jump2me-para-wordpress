@@ -5,7 +5,7 @@ Plugin URI: http://jump2.me/blog/plugins/wordpress/
 Description: Crie links curtos para os seus posts com o <a href="http://jump2.me" title="Jump2.me">jump2.me</a> e compartilhe-os através do Twitter. Adicione o botão Tweet junto aos posts e estimule a divulgação do conteúdo do seu blog. Permita que seus usuários efetuem login através do Twitter para comentar seus posts.
 Author: Luthiano Vasconcelos
 Author URI: http://twitter.com/luthiano
-Version: 1.5
+Version: 1.6
 */
 
 /* Release History :
@@ -15,6 +15,7 @@ Version: 1.5
  * 1.3: Botão tweet.
  * 1.4: Botão tweet com contador (vertical e horizontal). 
  * 1.5: Login de usuários através do Twitter.
+ * 1.6: Acréscimo dos botões de login.
  */
 
 global $wp_jump2me;
