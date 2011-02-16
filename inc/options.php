@@ -46,9 +46,9 @@ function wp_jump2me_add_css_js_post() {
 	}
 }
 
-// Valida opçes de configuração
+// Valida opções de configuração
 function wp_jump2me_sanitize( $in ) {
-	global $wp_jump2me;
+	//global $wp_jump2me;
 	
 	$in = array_map( 'esc_attr', $in);
 	
@@ -57,6 +57,60 @@ function wp_jump2me_sanitize( $in ) {
 			$in[$key] = ( $value == 1 ? 1 : 0 );
 		}
 	}
+	
+	$jump2me_template_dflt = '<div class="jump2me_connect"><p><strong>Usuários do Twitter</strong><br />Clique no botão abaixo para efetuar o login usando sua conta do Twitter.</p></div>';
+
+	$jump2me_login_text_dflt = '<div class="jump2me_connect"><p><strong>Usuários do Twitter</strong><br />Clique no botão abaixo para efetuar o login usando sua conta do Twitter.</p></div><br/><br/>';
+
+	$jump2me_tweet_this_text_dflt = 'Veja minha opinião sobre $T $U';
+	
+	if(empty($in['template']))
+	{
+	    $in['template'] = $jump2me_template_dflt;
+	}
+	if(empty($in['tweet_quote_template']))
+	{
+	    $in['tweet_quote_template'] = $jump2me_tweet_quote_template_dflt;
+	}
+	if(empty($in['login_text']))
+	{
+	    $in['login_text'] = $jump2me_login_text_dflt;
+	}
+	if(empty($in['tweet_this_text']))
+	{
+	    $in['tweet_this_text'] = $jump2me_tweet_this_text_dflt;
+    }
+
+	if(empty($in['user_login_suffix'])) {
+          $in['user_login_suffix'] = '@jump2.me';
+    }
+	if(empty($in['add_to_comment_page']))
+	{
+	    $in['add_to_comment_page'] = 1;
+	}
+       
+	if(empty($in['email_default'])) {
+         //$sitedomain = wp_jump2me_get_domain();
+		$sitedomain = 'jump2.me';
+        $in['email_default'] = '%%username%%@'.$sitedomain;
+     }
+
+	if(empty($in['profile_images'])) {
+        $in['profile_images'] = 'http://api.twitter.com/1/users/profile_image/%%username%%'; 
+	}
+	    
+	if(empty($in['redirect'])) {
+        $in['redirect'] = 'wp-admin/index.php';
+     }
+
+	if(empty($in['tweet_this'])) {
+        $in['tweet_this'] = 0;
+     }
+
+	if(!empty($in['api_key'])) {
+        $in['api_key'] = trim($in['api_key']);
+     }
+
 	
 	return $in;
 }
@@ -68,12 +122,14 @@ function wp_jump2me_settings_are_ok( $check = 'overall' ) {
 	$check_jump2me   = ( isset( $wp_jump2me['api_key'] ) && !empty( $wp_jump2me['api_key'] ) ? true : false );
 	$check_wordpress = ( isset( $wp_jump2me['twitter_message'] ) && !empty( $wp_jump2me['twitter_message'] ) ? true : false );
 	$check_button = true;
+	$check_authentication = true;
+	$check_comment = true;
 	
 	if( $check == 'overall' ) {
-		$overall = $check_jump2me && $check_wordpress && $check_button ;
+		$overall = $check_jump2me && $check_wordpress && $check_button && $check_authentication & $check_comment;
 		return $overall;
 	} else {
-		return array( 'check_jump2me' => $check_jump2me, 'check_wordpress' => $check_wordpress, 'check_button' => $check_button );
+		return array( 'check_jump2me' => $check_jump2me, 'check_wordpress' => $check_wordpress, 'check_button' => $check_button , 'check_authentication' => $check_authentication , 'check_comment' => $check_comment );
 	}
 }
 
@@ -120,6 +176,16 @@ function wp_jump2me_session_destroy() {
 
 // Monta a página de configurações
 function wp_jump2me_do_page() {
+	global $wpdb;
+	
+	$jump2me_template_dflt = '<div class="jump2me_connect"><p><strong>Usuários do Twitter</strong><br />Clique no botão abaixo para efetuar o login usando sua conta do Twitter.</p></div>';
+
+	$jump2me_login_text_dflt = '<div class="jump2me_connect"><p><strong>Usuários do Twitter</strong><br />Clique no botão abaixo para efetuar o login usando sua conta do Twitter.</p></div><br/><br/>';
+
+	$jump2me_tweet_this_text_dflt = 'Veja minha opinião sobre $T $U';
+	
+	$redirect = 'wp-admin/index.php';
+
 	$plugin_url = wp_jump2me_pluginurl();
 	
 	$jump2me = get_option('jump2me'); 
@@ -149,6 +215,8 @@ function wp_jump2me_do_page() {
 		toggle_ok_notok('#h3_check_jump2me', '<?php echo $check_jump2me ? 'ok' : 'notok' ; ?>' );
 		toggle_ok_notok('#h3_check_wordpress', '<?php echo $check_wordpress ? 'ok' : 'notok' ; ?>' );
 		toggle_ok_notok('#h3_check_button', '<?php echo $check_button ? 'ok' : 'notok' ; ?>' );
+		toggle_ok_notok('#h3_check_authentication', '<?php echo $check_button ? 'ok' : 'notok' ; ?>' );
+		toggle_ok_notok('#h3_check_comment', '<?php echo $check_button ? 'ok' : 'notok' ; ?>' );
 		<?php echo $script_expand; ?>
 	});
 	</script>	
@@ -180,7 +248,7 @@ function wp_jump2me_do_page() {
 	<th scope="row">Chave da API<span class="mandatory">*</span></th>
 	<td>
 
-	<input type="text" class="y_longfield" id="y_path" name="jump2me[api_key]" value="<?php echo $jump2me['api_key']; ?>"/></br>
+	<input type="text" class="y_longfield" id="y_path" name="jump2me[api_key]" value="<?php echo trim($jump2me['api_key']); ?>"/><br/>
 	<span class="description">Para obter a chave de acesso, acesse o <a href="http://jump2.me">Jump2.me</a>, efetue o <a href="http://jump2.me/jump2/login">login</a> e copie a chave no <a href="http://jump2.me/jump2/profile">perfil do usuário</a>.</span>
 	
 	
@@ -254,7 +322,6 @@ function wp_jump2me_do_page() {
 	</span>
 	</td>
 	</tr>
-
 	</table>
 	
 	</div> <!-- div_h3_wordpress -->
@@ -263,13 +330,16 @@ function wp_jump2me_do_page() {
 
 	<div class="div_h3" id="div_h3_button">
 	    
-		<img style="float: right; margin-left: 10px;" src="http://s.twimg.com/a/1283397887/images/goodies/tweetv.png" />
-		<h4>Exiba o botão Tweet para que os leitores divulguem seus posts diretamente no Twitter</h4> 
+		<!-- <div class="twitter_button" style="float:right; margin-left: 10px;">  -->
+		<!-- <iframe src="http://jump2.me/services/button.php?url=http%3A%2F%2Fjump2.me%2FP&count=vertical&lang=pt_BRtext=Estou%20configurando%20o%20plugin%20Jump2.me%20para%20Wordpress%20no%20meu%20blog%3A" height="62" width="55" frameborder="0" scrolling="no" allowtransparency="true" /> -->
+		<!-- </div> -->
+		
+		<h4>Exiba o botão Tweet para que os leitores divulguem seus posts diretamente no Twitter. Clique no botão ao lado e veja como funciona.</h4> 
 		
 		<table class="form-table">
 
 		<tr valign="top">
-		<th scope="row">Ativado</span></th>
+		<th scope="row">Ativado</th>
 		<td>
 			<input type="radio" value="yes" <?php if ($jump2me['twitter_enable'] == 'yes') echo 'checked="checked"'; ?> name="jump2me[twitter_enable]" id="twitter_enable_yes" group="twitter_enable"/>
 	        <label for="twitter_enable_yes">Sim</label>
@@ -281,7 +351,7 @@ function wp_jump2me_do_page() {
 		</tr>
 		
 		<tr valign="top">
-		<th scope="row">Tipo</span></th>
+		<th scope="row">Tipo</th>
 		<td>
 			<input type="radio" value="vertical" <?php if ($jump2me['twitter_version'] == 'vertical') echo 'checked="checked"'; ?> name="jump2me[twitter_version]" id="twitter_version_twitter_vertical" group="twitter_version"/>
             <label for="twitter_version_twitter_vertical">Contador Vertical</label>
@@ -314,16 +384,16 @@ function wp_jump2me_do_page() {
         		<option <?php if ($jump2me['twitter_where'] == 'beforeandafter') echo 'selected="selected"'; ?> value="beforeandafter">Início e fim do post</option>
         		<option <?php if ($jump2me['twitter_where'] == 'shortcode') echo 'selected="selected"'; ?> value="shortcode">Código embutido no conteúdo do post: [twitter]</option>
         		<option <?php if ($jump2me['twitter_where'] == 'manual') echo 'selected="selected"'; ?> value="manual">Manual (através de alteração no tema)</option>
-        	</select></br>
+        	</select><br/>
         	<span class="description">Posição do botão na página</span>
 		</td>
 		</tr>
 		
 		<tr valign="top">
-		<th scope="row">Estilo</span></th>
+		<th scope="row">Estilo</th>
 		<td>
-			<input type="text" class="y_longfield" value="<?php echo htmlspecialchars($jump2me['twitter_style']); ?>" name="jump2me[twitter_style]" id="twitter_style" /></br>
-            <span class="description">Defina o estilo do DIV que envolve o botão. Esse parâmetro é útil para ajustar o posicionamento do botão em relação ao tema do blog.</br>
+			<input type="text" class="y_longfield" value="<?php echo htmlspecialchars($jump2me['twitter_style']); ?>" name="jump2me[twitter_style]" id="twitter_style" /><br/>
+            <span class="description">Defina o estilo do DIV que envolve o botão. Esse parâmetro é útil para ajustar o posicionamento do botão em relação ao tema do blog.<br/>
 				Exemplos (clique para copiar)<br/>
 				<ul id="tw_style_sample">
 					<li><code class="tw_style_sample">float: right; margin-left: 10px;</code></li>
@@ -333,10 +403,10 @@ function wp_jump2me_do_page() {
 		</tr>
 		
 		<tr valign="top">
-		<th scope="row">via @(usuário do Twitter)</span></th>
+		<th scope="row">via @(usuário do Twitter)</th>
 		<td>
-			<input type="text" value="<?php echo htmlspecialchars($jump2me['twitter_via']); ?>" name="jump2me[twitter_via]" id="twitter_via" /></br>
-            <span class="description">Esse usuário irá ser mencionado no texto sugerido</span>
+			<input type="text" value="<?php echo htmlspecialchars($jump2me['twitter_via']); ?>" name="jump2me[twitter_via]" id="twitter_via" /><br/>
+            <span class="description">Esse usuário será mencionado no texto sugerido</span>
 		</td>
 		</tr>
 		
@@ -352,6 +422,137 @@ function wp_jump2me_do_page() {
 		</table>
 	
 	</div> <!-- div_h3_button -->
+	
+	<h3>Configurações de Autenticação <span class="h3_toggle expand" id="h3_authentication">+</span> <span id="h3_check_authentication" class="h3_check">*</span></h3> 
+
+	<div class="div_h3" id="div_h3_authentication">
+	    
+		<h4>Habilite a autenticação integrada com o Twitter. Dessa forma, os leitores do blog podem se registrar de uma forma mais prática e rápida.</h4> 
+		
+		<table class="form-table">
+
+		<tr valign="top">
+		<th scope="row">Ativado</th>
+		<td>
+			<input type="radio" value="1" <?php if ($jump2me['authentication_enable'] == '1') echo 'checked="checked"'; ?> name="jump2me[authentication_enable]" id="authentication_enable_yes" group="authentication_enable"/>
+	        <label for="authentication_enable_yes">Sim</label>
+	        <br/>
+	        <input type="radio" value="0" <?php if ($jump2me['authentication_enable'] == '0' || !$jump2me['authentication_enable']) echo 'checked="checked"'; ?> name="jump2me[authentication_enable]" id="authentication_enable_no" group="authentication_enable" />
+	        <label for="authentication_enable_no">Não</label><br />
+	        <span class="description">Quando ativado, os usuários poderão registrar comentários usando o Twitter. Essa é uma excelente forma de estimular a participação dos leitores.</span>
+		</td>
+		</tr>
+		<tr valign="top">
+		<th scope="row">Exibir na página de login</th>
+		<td>
+			<input type="checkbox" value="1" <?php if ($jump2me['add_to_login_page'] == '1') echo 'checked="checked"'; ?> name="jump2me[add_to_login_page]" id="add_to_login_page" group="add_to_login_page"/>
+            <label for="add_to_login_page">Exibir o botão de login na página padrão do Wordpress</label>
+            <br/>
+		</td>
+		</tr>
+		<tr valign="top">
+		<th scope="row">Texto na página de login</th>
+		<td>
+			<textarea name='jump2me[login_text]' rows="5" cols="50"><?php echo (empty($jump2me['login_text']) ? $jump2me_login_text_dflt : $jump2me['login_text']); ?></textarea><br />
+            <span class="description">Esse texto aparecerá acima do botão de login. Não remova a definição <i>class="jump2me_connect"</i></span>
+		</td>
+		</tr>
+		<tr valign="top">
+		<th scope="row">Redirecionamento</th>
+		<td>
+			<input type="text" value="<?php echo (empty($jump2me['redirect']) ? $redirect : $jump2me['redirect']); ?>" name="jump2me[redirect]" id="redirect" /><br/>
+            <span class="description">O usuário será redirecionado para essa página depois de ser autenticado na página de login</span>
+		</td>
+		</tr>
+		<tr valign="top">
+		<th scope="row">Botão de autenticação</th>
+		<td>
+			<?php 
+			if(count($btn_images) == 0)
+            {
+                $btn_images = jump2me_get_buttons();
+            }
+        	foreach($btn_images as $btn_image): ?>
+				<input type="radio" value="<?php echo $btn_image ?>" <?php if ($jump2me['btn_choice'] == $btn_image) echo 'checked="checked"'; ?> name="jump2me[btn_choice]" id="btn_choice" group="btn_choice"/>
+				<img src="<?php echo $btn_image ?>" alt="" /><br />
+        	<?php endforeach; ?>
+		</td>
+		</tr>
+		
+		<tr valign="top">
+		<th scope="row">Posição do Botão (Opcional)</th>
+		<td>
+			<table>
+			<tr>
+			<td><label for="before_comment">Página de comentário</label></td><td><input type="text" value="<?php echo $jump2me['before_comment']; ?>" name="jump2me[before_comment]" id="before_comment" size="20" /></td>
+			</tr>
+			<tr>
+			<td><label for="before_login">Página de login</label></td><td><input type="text" value="<?php echo $jump2me['before_login']; ?>" name="jump2me[before_login]" id="before_login" size="20" /></td>
+			</tr>
+			</table>
+			<span class="description">Use essas opções para alterar onde o botão de login será exibido. Informe o ID de um elemento HTML na página e o botão será exibido antes desse elemento.</span>
+		</td>
+		</tr>
+	   </table>
+	   </div> <!-- div_h3_authentication -->
+	
+	<h3>Configurações dos Comentários <span class="h3_toggle expand" id="h3_comment">+</span> <span id="h3_check_comment" class="h3_check">*</span></h3> 
+
+	<div class="div_h3" id="div_h3_comment">
+	
+	<h4>Integre o formulário de comentários do blog com o Twitter.</h4> 
+	
+	<table class="form-table">
+
+	<tr valign="top">
+	<th scope="row">Exibir botão de login</th>
+	<td>
+		<input type="checkbox" value="1" <?php if ($jump2me['add_to_comment_page'] == '1') echo 'checked="checked"'; ?> name="jump2me[add_to_comment_page]" id="add_to_comment_page" group="add_to_comment_page"/>
+        <label for="add_to_comment_page">Permitir que os visitantes façam comentários autenticando-se através do Twitter</label><br/>
+		<span class="description">Se marcado, o botão de login será exibido em cada página de comentário</span>	
+	</td>
+	</tr>
+	<!-- Precisa de mais testes... Vai ser liberado na versão 1.6
+	<tr valign="top">
+	<th scope="row">Redirecionamento para página de edição do perfil</th>
+	<td>
+		<input type="checkbox" value="1" <?php if ($jump2me['comment_redirect'] == '1') echo 'checked="checked"'; ?> name="jump2me[comment_redirect]" id="comment_redirect" group="comment_redirect"/>
+        <label for="comment_redirect">Exibir página de edição do perfil no Wordpress</label><br/>
+		<span class="description">O redirecionamento será feito somente se o usuário não tiver alterado configurado o e-mail real</span>	
+	</td>
+	</tr>
+	-->
+	<tr valign="top">
+	<th scope="row">Link do Autor</th>
+	<td>
+		<input type="checkbox" value="1" <?php if ($jump2me['use_twitter_profile'] == '1') echo 'checked="checked"'; ?> name="jump2me[use_twitter_profile]" id="use_twitter_profile" group="use_twitter_profile"/>
+        <label for="use_twitter_profile">O link do autor aponta para o perfil do Twitter</label><br/>
+		<span class="description">Se marcado, o link para o autor do comentário aponta para o Twitter. Por exemplo: <a href="http://twitter.com/luthiano" target="_blank">http://twitter.com/luthiano</a></span>	
+	</td>
+	</tr>
+	<tr valign="top">
+	<th scope="row">Texto na página de comentários</th>
+	<td>
+		<textarea name='jump2me[template]' rows="5" cols="50"><?php echo (empty($jump2me['template']) ? $jump2me_template_dflt : $jump2me['template']); ?></textarea>
+	    <br/>
+		<span class="description">Esse é o texto que aparece acima do botão de login na página de comentários. Não remova o texto <em>class="jump2me_connect"</em></span>	
+	</td>
+	</tr>
+	<!-- Precisa de mais testes... Vai ser liberado na versão 1.6
+	<tr valign="top">
+	<th scope="row">Publicar comentário no Twitter</th>
+	<td>
+		<input type="checkbox" value="1" <?php if ($jump2me['tweet_this'] == '1') echo 'checked="checked"'; ?> name="jump2me[tweet_this]" id="tweet_this" group="tweet_this"/>
+        <label for="tweet_this">Exibir opção para que os visitantes publiquem um link no Twitter quando submeterem um comentário</label><br/>
+		<span class="description">Essa opção somente estará disponível se o usuário foi autenticado pelo Twitter.</span><br/>
+		<input type='text' name='jump2me[tweet_this_text]' value='<?php echo (empty($jump2me['tweet_this_text']) ? $jump2me_tweet_this_text_dflt : $jump2me['tweet_this_text']); ?>' size="70" /><br/>		
+	</td>
+	-->
+	</tr>
+	
+  </table>
+	
+	</div> <!-- div_h3_comment -->
 	
 	<?php
 	$reset = add_query_arg( array('action' => 'reset'), menu_page_url( 'jump2me', false ) );
@@ -409,4 +610,5 @@ function wp_jump2me_drawbox( $post ) {
 	echo "<p>Acesse as estatísticas de acesso aqui: <strong><a href='$shorturl+'>$shorturl+</a></strong></p>";
 	echo '</div>';
 }
+			
 ?>
